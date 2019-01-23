@@ -16,10 +16,14 @@ int main(int argc, char* argv[])
 {
     fs::path data_path;
     po::options_description desc("Allowed options");
+    std::string addr;
+    unsigned short port;
 
     desc.add_options()
             ("help,h", "produce help message")
-            ("path,p", po::value<fs::path>(&data_path), "path to data for server");
+            ("dir,d", po::value<fs::path>(&data_path), "path to data for server")
+            ("addr,a", po::value<std::string>(&addr)->default_value("127.0.0.1"), "addr of server")
+            ("port,p", po::value<unsigned short>(&port)->default_value(8081), "port for server");
 
 
     po::variables_map vm;
@@ -36,14 +40,14 @@ int main(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
-    if (! vm.count("path") || ! fs::is_directory(data_path)) {
+    if (! vm.count("dir") || ! fs::is_directory(data_path)) {
         std::cerr << "Path must be specified" << std::endl;
         std::cout << desc << std::endl;
         return EXIT_FAILURE;
     }
 
     try {
-        http_server::HttpServer server("127.0.0.1", 8082, data_path);
+        http_server::HttpServer server(addr, port, data_path);
 
         std::cout << "Start listen" << std::endl;
         server.StartListen();
